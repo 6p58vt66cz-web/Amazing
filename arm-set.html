@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Arm Set — 5 Minute Workout</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap');
+
+  :root{
+    --bg:#F6F5F2;
+    --surface:#EAE8E3;
+    --ring-track:#DEDBD4;
+    --text:#2B2B2B;        /* dark grey, high contrast on light bg */
+    --text-dim:#6B6B68;
+    --accent:#E14F31;
+    --go:#1F9D63;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  html,body{
+    height:100%;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Space Grotesk', sans-serif;
+    overflow:hidden;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  #app{
+    height:100vh;
+    height:100dvh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-between;
+    padding:6vh 6vw 5vh;
+    position:relative;
+    background:var(--bg);
+  }
+
+  /* ---------- START SCREEN ---------- */
+  #start-screen{
+    height:100%;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:1.8rem;
+    text-align:center;
+  }
+
+  .eyebrow-plain{
+    color:var(--text-dim);
+    font-size:0.95rem;
+    letter-spacing:0.02em;
+  }
+
+  #start-screen h1{
+    font-size:clamp(2.2rem, 8vw, 3.2rem);
+    font-weight:700;
+    line-height:1.05;
+    max-width:12ch;
+    color:var(--text);
+  }
+
+  .exercise-preview-list{
+    display:flex;
+    flex-direction:column;
+    gap:0.55rem;
+    width:100%;
+    max-width:360px;
+    margin-top:0.3rem;
+  }
+
+  .exercise-preview-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:0.55rem 0;
+    border-bottom:1px solid var(--surface);
+    font-size:1.05rem;
+    color:var(--text-dim);
+  }
+  .exercise-preview-row span:first-child{ color:var(--text); }
+
+  .start-btn{
+    margin-top:1rem;
+    background:var(--accent);
+    color:#FBF9F6;
+    border:none;
+    font-family:inherit;
+    font-weight:700;
+    font-size:1.15rem;
+    padding:1.1rem 3rem;
+    border-radius:100px;
+    cursor:pointer;
+    transition:transform 0.15s ease;
+  }
+  .start-btn:active{ transform:scale(0.96); }
+
+  .stats-link-btn{
+    background:transparent;
+    color:var(--text-dim);
+    border:1.5px solid var(--surface);
+    font-family:inherit;
+    font-weight:500;
+    font-size:0.95rem;
+    padding:0.7rem 1.8rem;
+    border-radius:100px;
+    cursor:pointer;
+  }
+  .stats-link-btn:active{ transform:scale(0.96); }
+
+  .audio-note{
+    color:var(--text-dim);
+    font-size:0.85rem;
+    max-width:26ch;
+  }
+
+  /* ---------- SESSION SCREEN ---------- */
+  #session-screen{
+    height:100%;
+    width:100%;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-between;
+    padding:6vh 6vw 5vh;
+  }
+  #session-screen.active{ display:flex; }
+
+  .top-row{
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+  }
+
+  .exercise-label{
+    font-size:clamp(1.6rem, 6vw, 2.4rem);
+    font-weight:700;
+    letter-spacing:-0.01em;
+    max-width:60vw;
+    line-height:1.05;
+    color:var(--text);
+  }
+
+  .set-count{
+    color:var(--text-dim);
+    font-size:1rem;
+    text-align:right;
+    white-space:nowrap;
+    padding-top:0.3rem;
+  }
+
+  .ring-wrap{
+    position:relative;
+    width:min(62vw, 320px);
+    height:min(62vw, 320px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  svg{ width:100%; height:100%; transform:rotate(-90deg); }
+
+  .ring-track{
+    fill:none;
+    stroke:var(--ring-track);
+    stroke-width:10;
+  }
+
+  .ring-progress{
+    fill:none;
+    stroke:var(--accent);
+    stroke-width:10;
+    stroke-linecap:round;
+    transition:stroke 0.3s ease;
+  }
+
+  .timer-num{
+    position:absolute;
+    font-size:clamp(4rem, 20vw, 6.5rem);
+    font-weight:700;
+    font-variant-numeric:tabular-nums;
+    letter-spacing:-0.02em;
+    color:var(--text);
+  }
+
+  .timer-num.pulse{
+    animation:pulse 1s ease;
+  }
+  @keyframes pulse{
+    0%{ transform:scale(1); }
+    15%{ transform:scale(1.08); }
+    100%{ transform:scale(1); }
+  }
+
+  .bottom-row{
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+
+  .instructions{
+    display:flex;
+    flex-direction:column;
+    gap:0.4rem;
+    text-align:center;
+    max-width:70vw;
+  }
+  .instructions .tempo{
+    font-size:1.05rem;
+    font-weight:700;
+    color:var(--accent);
+    letter-spacing:0.01em;
+  }
+  .instructions .cue{
+    font-size:0.95rem;
+    color:var(--text-dim);
+    line-height:1.35;
+  }
+
+  .next-up{
+    color:var(--text-dim);
+    font-size:0.95rem;
+  }
+
+  .pause-btn{
+    background:var(--surface);
+    color:var(--text);
+    border:none;
+    font-family:inherit;
+    font-size:0.95rem;
+    padding:0.65rem 1.4rem;
+    border-radius:100px;
+    cursor:pointer;
+  }
+  .pause-btn:active{ transform:scale(0.96); }
+
+  /* ---------- DONE SCREEN ---------- */
+  #done-screen{
+    height:100%;
+    width:100%;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:1.4rem;
+    text-align:center;
+    padding:6vh 6vw;
+  }
+  #done-screen.active{ display:flex; }
+
+  #done-screen h1{
+    font-size:clamp(2.2rem, 8vw, 3.2rem);
+    font-weight:700;
+    color:var(--go);
+  }
+  #done-screen p{
+    color:var(--text-dim);
+    font-size:1.05rem;
+  }
+
+  .done-btn-row{
+    display:flex;
+    gap:0.8rem;
+    margin-top:0.8rem;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+
+  .complete-btn{
+    background:var(--go);
+    color:#FBF9F6;
+    border:none;
+    font-family:inherit;
+    font-weight:700;
+    font-size:1rem;
+    padding:1rem 2.2rem;
+    border-radius:100px;
+    cursor:pointer;
+  }
+  .complete-btn:active{ transform:scale(0.96); }
+
+  .repeat-btn{
+    background:transparent;
+    color:var(--text);
+    border:1.5px solid var(--surface);
+    font-family:inherit;
+    font-weight:500;
+    font-size:1rem;
+    padding:1rem 2.2rem;
+    border-radius:100px;
+    cursor:pointer;
+  }
+  .repeat-btn:active{ transform:scale(0.96); }
+
+  #paused-overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(246,245,242,0.96);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap:1.5rem;
+    z-index:10;
+  }
+  #paused-overlay.active{ display:flex; }
+  #paused-overlay h2{ font-size:1.8rem; font-weight:700; color:var(--text); }
+  .resume-btn{
+    background:var(--go);
+    color:#FBF9F6;
+    border:none;
+    font-family:inherit;
+    font-weight:700;
+    font-size:1.05rem;
+    padding:1rem 2.6rem;
+    border-radius:100px;
+    cursor:pointer;
+  }
+
+  /* ---------- STATS / CALENDAR SCREEN ---------- */
+  #stats-screen{
+    height:100%;
+    width:100%;
+    display:none;
+    flex-direction:column;
+    padding:6vh 6vw 4vh;
+    overflow-y:auto;
+  }
+  #stats-screen.active{ display:flex; }
+
+  .stats-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:1.6rem;
+  }
+  .stats-header h1{
+    font-size:1.6rem;
+    font-weight:700;
+    color:var(--text);
+  }
+  .back-btn{
+    background:var(--surface);
+    color:var(--text);
+    border:none;
+    font-family:inherit;
+    font-size:0.9rem;
+    padding:0.55rem 1.2rem;
+    border-radius:100px;
+    cursor:pointer;
+  }
+  .back-btn:active{ transform:scale(0.96); }
+
+  .month-total{
+    background:var(--surface);
+    border-radius:20px;
+    padding:1.3rem 1.5rem;
+    margin-bottom:1.5rem;
+  }
+  .month-total .big-num{
+    font-size:2.6rem;
+    font-weight:700;
+    color:var(--accent);
+    line-height:1;
+  }
+  .month-total .label{
+    color:var(--text-dim);
+    font-size:0.95rem;
+    margin-top:0.3rem;
+  }
+
+  .section-title{
+    font-size:1rem;
+    font-weight:700;
+    color:var(--text);
+    margin-bottom:0.8rem;
+    margin-top:0.4rem;
+  }
+
+  .week-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0.85rem 0;
+    border-bottom:1px solid var(--surface);
+  }
+  .week-range{
+    font-size:0.98rem;
+    color:var(--text);
+  }
+  .week-count{
+    font-size:1.1rem;
+    font-weight:700;
+    color:var(--text);
+    min-width:2.4rem;
+    text-align:right;
+  }
+  .week-count.zero{ color:var(--text-dim); font-weight:500; }
+
+  .weeks-list{ margin-bottom:1.8rem; }
+
+  .calendar-grid{
+    display:grid;
+    grid-template-columns:repeat(7, 1fr);
+    gap:0.35rem;
+    margin-bottom:1rem;
+  }
+  .cal-dow{
+    text-align:center;
+    font-size:0.7rem;
+    color:var(--text-dim);
+    padding-bottom:0.2rem;
+  }
+  .cal-day{
+    aspect-ratio:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:10px;
+    font-size:0.85rem;
+    color:var(--text);
+    background:var(--surface);
+    position:relative;
+  }
+  .cal-day.empty{ background:transparent; }
+  .cal-day.has-sets{
+    background:var(--go);
+    color:#FBF9F6;
+    font-weight:700;
+  }
+  .cal-day .dot-count{
+    position:absolute;
+    bottom:2px;
+    font-size:0.55rem;
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- START -->
+  <div id="start-screen">
+    <div class="eyebrow-plain">Five minutes, five moves</div>
+    <h1>Arm Set</h1>
+    <div class="exercise-preview-list" id="preview-list"></div>
+    <button class="start-btn" id="start-btn">Start workout</button>
+    <button class="stats-link-btn" id="stats-link-btn">View progress</button>
+    <div class="audio-note">Sound on — you'll hear each exercise name and countdown cues.</div>
+  </div>
+
+  <!-- SESSION -->
+  <div id="session-screen">
+    <div class="top-row">
+      <div class="exercise-label" id="exercise-label">Arnold Press</div>
+      <div class="set-count" id="set-count">1 / 5</div>
+    </div>
+
+    <div class="ring-wrap">
+      <svg viewBox="0 0 200 200">
+        <circle class="ring-track" cx="100" cy="100" r="90"></circle>
+        <circle class="ring-progress" id="ring-progress" cx="100" cy="100" r="90"
+          stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
+      </svg>
+      <div class="timer-num" id="timer-num">60</div>
+    </div>
+
+    <div class="instructions">
+      <div class="tempo" id="instr-tempo">1 sec lift — 1 sec hold — 3 sec lower</div>
+      <div class="cue" id="instr-cue">Pause for 1 second just before full overhead lockout.</div>
+    </div>
+
+    <div class="bottom-row">
+      <div class="next-up" id="next-up">Next: Hammer Curls</div>
+      <button class="pause-btn" id="pause-btn">Pause</button>
+    </div>
+
+    <div id="paused-overlay">
+      <h2>Paused</h2>
+      <button class="resume-btn" id="resume-btn">Resume</button>
+    </div>
+  </div>
+
+  <!-- DONE -->
+  <div id="done-screen">
+    <h1>Set complete</h1>
+    <p>Five minutes, five moves — done. Nice work.</p>
+    <div class="done-btn-row">
+      <button class="complete-btn" id="complete-btn">Complete</button>
+      <button class="repeat-btn" id="repeat-btn">Repeat</button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div id="stats-screen">
+    <div class="stats-header">
+      <h1>Your progress</h1>
+      <button class="back-btn" id="back-btn">Done</button>
+    </div>
+
+    <div class="month-total" id="month-total">
+      <div class="big-num" id="month-total-num">0</div>
+      <div class="label" id="month-total-label">sets completed this month</div>
+    </div>
+
+    <div class="section-title">This month</div>
+    <div class="calendar-grid" id="calendar-grid"></div>
+
+    <div class="section-title">Weekly totals</div>
+    <div class="weeks-list" id="weeks-list"></div>
+  </div>
+
+</div>
+
+<script>
+  const EXERCISES = [
+    "Arnold Press",
+    "Hammer Curls",
+    "Alternating L Raises",
+    "Tricep Kickbacks",
+    "Upright Rows"
+  ];
+
+  const INSTRUCTIONS = {
+    "Arnold Press": {
+      tempo: "1 sec lift — 1 sec hold — 3 sec lower",
+      cue: "Pause for 1 second just before full overhead lockout."
+    },
+    "Hammer Curls": {
+      tempo: "1 sec lift — 2 sec hold — 4 sec lower",
+      cue: "Squeeze hard at the top (forearms near biceps) for 2 seconds."
+    },
+    "Alternating L Raises": {
+      tempo: "1 sec lift — 2 sec hold — 3 sec lower",
+      cue: "Pause at shoulder height when arms form the \"L\"."
+    },
+    "Tricep Kickbacks": {
+      tempo: "1 sec lift — 2 sec hold — 3 sec lower",
+      cue: "Squeeze triceps hard at full extension (arm straight back)."
+    },
+    "Upright Rows": {
+      tempo: "1 sec lift — 2 sec hold — 3 sec lower",
+      cue: "Hold at chest height with elbows higher than wrists."
+    }
+  };
+  const DURATION = 60;
+  const CIRCUMFERENCE = 2 * Math.PI * 90;
+  const STORAGE_KEY = 'armset_completions_v1';
+
+  const startScreen = document.getElementById('start-screen');
+  const sessionScreen = document.getElementById('session-screen');
+  const doneScreen = document.getElementById('done-screen');
+  const statsScreen = document.getElementById('stats-screen');
+
+  const startBtn = document.getElementById('start-btn');
+  const statsLinkBtn = document.getElementById('stats-link-btn');
+  const pauseBtn = document.getElementById('pause-btn');
+  const resumeBtn = document.getElementById('resume-btn');
+  const completeBtn = document.getElementById('complete-btn');
+  const repeatBtn = document.getElementById('repeat-btn');
+  const backBtn = document.getElementById('back-btn');
+  const pausedOverlay = document.getElementById('paused-overlay');
+
+  const exerciseLabel = document.getElementById('exercise-label');
+  const setCount = document.getElementById('set-count');
+  const timerNum = document.getElementById('timer-num');
+  const ringProgress = document.getElementById('ring-progress');
+  const nextUp = document.getElementById('next-up');
+  const previewList = document.getElementById('preview-list');
+  const instrTempo = document.getElementById('instr-tempo');
+  const instrCue = document.getElementById('instr-cue');
+
+  // Build preview list
+  EXERCISES.forEach((ex) => {
+    const row = document.createElement('div');
+    row.className = 'exercise-preview-row';
+    row.innerHTML = `<span>${ex}</span><span>60s</span>`;
+    previewList.appendChild(row);
+  });
+
+  ringProgress.setAttribute('stroke-dasharray', CIRCUMFERENCE);
+
+  let currentIndex = 0;
+  let secondsLeft = DURATION;
+  let intervalId = null;
+  let isPaused = false;
+  let announcedFlags = {};
+
+  // ---- Speech: prefer an Australian male voice ----
+  let chosenVoice = null;
+
+  function pickVoice(){
+    if (!('speechSynthesis' in window)) return;
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices.length) return;
+
+    // Look for Australian English voices first
+    const auVoices = voices.filter(v => v.lang === 'en-AU' || v.lang === 'en_AU');
+
+    // Common male-voice name patterns across platforms (Google, Microsoft, Apple)
+    const maleHints = ['male', 'lee', 'james', 'william', 'russell', 'tom', 'guy', 'fred', 'daniel', 'oliver'];
+    const femaleHints = ['female', 'karen', 'catherine', 'zoe', 'nicole', 'olivia', 'natasha'];
+
+    let candidate = auVoices.find(v => {
+      const n = v.name.toLowerCase();
+      return maleHints.some(h => n.includes(h)) && !femaleHints.some(h => n.includes(h));
+    });
+
+    // fall back to any AU voice not flagged female
+    if (!candidate){
+      candidate = auVoices.find(v => !femaleHints.some(h => v.name.toLowerCase().includes(h)));
+    }
+    // fall back to any AU voice at all
+    if (!candidate && auVoices.length) candidate = auVoices[0];
+
+    // last resort: any en voice with a male hint
+    if (!candidate){
+      candidate = voices.find(v => v.lang.startsWith('en') && maleHints.some(h => v.name.toLowerCase().includes(h)));
+    }
+
+    chosenVoice = candidate || null;
+  }
+
+  if ('speechSynthesis' in window){
+    pickVoice();
+    window.speechSynthesis.onvoiceschanged = pickVoice;
+  }
+
+  function speak(text){
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    if (chosenVoice) utter.voice = chosenVoice;
+    utter.lang = chosenVoice ? chosenVoice.lang : 'en-AU';
+    utter.rate = 1.0;
+    utter.pitch = 0.9; // slightly deeper for a male-leaning tone when voice options are limited
+    utter.volume = 1.0;
+    window.speechSynthesis.speak(utter);
+  }
+
+  function updateRing(){
+    const pct = secondsLeft / DURATION;
+    const offset = CIRCUMFERENCE * (1 - pct);
+    ringProgress.setAttribute('stroke-dashoffset', offset);
+    ringProgress.style.stroke = secondsLeft <= 20 ? '#E14F31' : '#1F9D63';
+  }
+
+  function tick(){
+    if (isPaused) return;
+    secondsLeft--;
+
+    if (secondsLeft <= 0){
+      advanceExercise();
+      return;
+    }
+
+    timerNum.textContent = secondsLeft;
+    timerNum.classList.remove('pulse');
+    void timerNum.offsetWidth;
+    timerNum.classList.add('pulse');
+    updateRing();
+
+    if (secondsLeft === 40 && !announcedFlags[40]){
+      speak("40 seconds remaining");
+      announcedFlags[40] = true;
+    } else if (secondsLeft === 20 && !announcedFlags[20]){
+      speak("20 seconds remaining");
+      announcedFlags[20] = true;
+    } else if (secondsLeft === 10 && !announcedFlags[10]){
+      speak("10 seconds remaining");
+      announcedFlags[10] = true;
+    }
+  }
+
+  function startExercise(index){
+    currentIndex = index;
+    secondsLeft = DURATION;
+    announcedFlags = {};
+    exerciseLabel.textContent = EXERCISES[index];
+    setCount.textContent = `${index + 1} / ${EXERCISES.length}`;
+    timerNum.textContent = secondsLeft;
+    updateRing();
+
+    const info = INSTRUCTIONS[EXERCISES[index]];
+    if (info){
+      instrTempo.textContent = info.tempo;
+      instrCue.textContent = info.cue;
+    }
+
+    const next = EXERCISES[index + 1];
+    nextUp.textContent = next ? `Next: ${next}` : `Final move`;
+
+    speak(EXERCISES[index]);
+  }
+
+  function advanceExercise(){
+    if (currentIndex + 1 < EXERCISES.length){
+      startExercise(currentIndex + 1);
+    } else {
+      finishSession();
+    }
+  }
+
+  function finishSession(){
+    clearInterval(intervalId);
+    intervalId = null;
+    sessionScreen.classList.remove('active');
+    doneScreen.classList.add('active');
+    speak("Set complete. Nice work.");
+  }
+
+  function beginSession(){
+    startScreen.style.display = 'none';
+    doneScreen.classList.remove('active');
+    statsScreen.classList.remove('active');
+    sessionScreen.classList.add('active');
+    startExercise(0);
+    intervalId = setInterval(tick, 1000);
+  }
+
+  startBtn.addEventListener('click', () => {
+    if ('speechSynthesis' in window){
+      pickVoice();
+      const warm = new SpeechSynthesisUtterance('');
+      window.speechSynthesis.speak(warm);
+    }
+    beginSession();
+  });
+
+  pauseBtn.addEventListener('click', () => {
+    isPaused = true;
+    pausedOverlay.classList.add('active');
+    window.speechSynthesis && window.speechSynthesis.cancel();
+  });
+
+  resumeBtn.addEventListener('click', () => {
+    isPaused = false;
+    pausedOverlay.classList.remove('active');
+  });
+
+  // ---- Completion tracking ----
+  function loadCompletions(){
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e){
+      return [];
+    }
+  }
+
+  function saveCompletion(){
+    const list = loadCompletions();
+    list.push(new Date().toISOString());
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    } catch (e){ /* ignore */ }
+  }
+
+  completeBtn.addEventListener('click', () => {
+    saveCompletion();
+    doneScreen.classList.remove('active');
+    renderStats();
+    statsScreen.classList.add('active');
+  });
+
+  repeatBtn.addEventListener('click', () => {
+    saveCompletion();
+    doneScreen.classList.remove('active');
+    beginSession();
+  });
+
+  statsLinkBtn.addEventListener('click', () => {
+    renderStats();
+    startScreen.style.display = 'none';
+    statsScreen.classList.add('active');
+  });
+
+  backBtn.addEventListener('click', () => {
+    statsScreen.classList.remove('active');
+    startScreen.style.display = 'flex';
+  });
+
+  // ---- Stats / calendar rendering (weeks start Monday) ----
+  function toDateOnly(d){
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+
+  function getMonday(d){
+    const date = toDateOnly(d);
+    const day = date.getDay(); // 0=Sun..6=Sat
+    const diff = (day === 0 ? -6 : 1 - day); // move back to Monday
+    date.setDate(date.getDate() + diff);
+    return date;
+  }
+
+  function formatShort(d){
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  function renderStats(){
+    const completions = loadCompletions().map(iso => new Date(iso));
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    // --- Month total ---
+    const monthCompletions = completions.filter(d =>
+      d.getMonth() === currentMonth && d.getFullYear() === currentYear
+    );
+    const monthName = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    document.getElementById('month-total-num').textContent = monthCompletions.length;
+    document.getElementById('month-total-label').textContent =
+      `sets completed — ${monthName}`;
+
+    // --- Calendar grid for current month, Monday-start ---
+    const grid = document.getElementById('calendar-grid');
+    grid.innerHTML = '';
+    const dowLabels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    dowLabels.forEach(l => {
+      const el = document.createElement('div');
+      el.className = 'cal-dow';
+      el.textContent = l;
+      grid.appendChild(el);
+    });
+
+    const firstOfMonth = new Date(currentYear, currentMonth, 1);
+    const startOffset = (firstOfMonth.getDay() === 0 ? 6 : firstOfMonth.getDay() - 1); // days before month start (Mon=0)
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+    // count completions per day
+    const perDay = {};
+    monthCompletions.forEach(d => {
+      const key = d.getDate();
+      perDay[key] = (perDay[key] || 0) + 1;
+    });
+
+    for (let i = 0; i < startOffset; i++){
+      const el = document.createElement('div');
+      el.className = 'cal-day empty';
+      grid.appendChild(el);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++){
+      const el = document.createElement('div');
+      const count = perDay[day] || 0;
+      el.className = 'cal-day' + (count > 0 ? ' has-sets' : '');
+      el.textContent = day;
+      if (count > 0){
+        const dot = document.createElement('span');
+        dot.className = 'dot-count';
+        dot.textContent = count > 1 ? `×${count}` : '';
+        el.appendChild(dot);
+      }
+      grid.appendChild(el);
+    }
+
+    // --- Weekly totals: current week + prior 5 weeks, Monday-start ---
+    const weeksList = document.getElementById('weeks-list');
+    weeksList.innerHTML = '';
+
+    const thisMonday = getMonday(now);
+    const weeks = [];
+    for (let w = 0; w < 6; w++){
+      const weekStart = new Date(thisMonday);
+      weekStart.setDate(weekStart.getDate() - (w * 7));
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+      weeks.push({ start: weekStart, end: weekEnd });
+    }
+
+    weeks.forEach((wk, idx) => {
+      const count = completions.filter(d => {
+        const dd = toDateOnly(d);
+        return dd >= wk.start && dd <= wk.end;
+      }).length;
+
+      const row = document.createElement('div');
+      row.className = 'week-row';
+
+      const rangeLabel = idx === 0
+        ? `This week — ${formatShort(wk.start)}`
+        : `Week of ${formatShort(wk.start)}`;
+
+      row.innerHTML = `
+        <div class="week-range">${rangeLabel}</div>
+        <div class="week-count${count === 0 ? ' zero' : ''}">${count}</div>
+      `;
+      weeksList.appendChild(row);
+    });
+  }
+</script>
+
+</body>
+</html>
